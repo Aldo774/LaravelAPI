@@ -10,6 +10,9 @@ use App\Http\Controllers\Controller;
 
 class JobsController extends Controller
 {
+    public function __construct() {
+        $this->middleware('auth', ['except' => ['index', 'show']]);
+    }
 
     public function index()
     {

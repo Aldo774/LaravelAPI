@@ -9,12 +9,30 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use JWTAuth;
 use Hash;
+use Validator;
+
+use App\Http\Requests\AuthenticateRequest;
 
 class AuthController extends Controller
 {
     public function authenticate(Request $request) {
-      // Get only email and password from request
+      // TODO: authenticate JWT
       $credentials = $request->only('email', 'password');
+
+      // dd($request->all());
+
+      // Validate credentials
+      $validator = Validator::make($credentials, [
+          'password' => 'required',
+          'email' => 'required'
+      ]);
+
+      if($validator->fails()) {
+          return response()->json([
+              'message'   => 'Invalid credentials',
+              'errors'    => $validator->errors()->all()
+          ], 422);
+      }
 
       // Get user by email
       $company = Company::where('email', $credentials['email'])->first();
@@ -23,14 +41,14 @@ class AuthController extends Controller
       if(!$company) {
         return response()->json([
           'error' => 'Invalid credentials'
-        ], 401);
+        ], 422);
       }
 
       // Validate Password
       if ($credentials['password'] != $company->password) {
           return response()->json([
             'error' => 'Invalid credentials'
-          ], 401);
+          ], 422);
       }
 
       // Generate Token
@@ -43,7 +61,7 @@ class AuthController extends Controller
       return response()->json([
         'access_token' => $token,
         'token_type' => 'bearer',
-        'expires_in' => JWTAuth::decode()->get('exp')
+        'expires_in' => $expiration
       ]);
     }
 }

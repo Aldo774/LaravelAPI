@@ -4,6 +4,9 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use JWTAuth;
+// use Auth;
+use Tymon\JWTAuth\Exceptions\JWTException as JWTException;
 
 class Authenticate
 {
@@ -15,7 +18,7 @@ class Authenticate
     protected $auth;
 
     /**
-     * Create a new middleware instance.
+     * Create a new filter instance.
      *
      * @param  Guard  $auth
      * @return void
@@ -35,13 +38,9 @@ class Authenticate
     public function handle($request, Closure $next)
     {
         if ($this->auth->guest()) {
-
-            if ($this->auth->guest()) {
-                return response()->json([
-                    'message' => 'Unauthorized'
-                ], 401);
-            }
-
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
         }
 
         return $next($request);
